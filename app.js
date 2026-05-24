@@ -1,44 +1,40 @@
-const express = require("express")
-const { GoogleGenerativeAI } = require("@google/generative-ai")
+const express = require("express");
 
-const app = express()
+const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY)
+app.get("/", (req, res) => {
+    res.send("API online!");
+});
 
 app.post("/chat", async (req, res) => {
-
     try {
+        const message = req.body.message;
 
-        const pergunta = req.body.message
+        if (!message) {
+            return res.status(400).json({
+                error: "Mensagem não enviada"
+            });
+        }
 
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash"
-        })
-
-        const result = await model.generateContent(pergunta)
-
-        const resposta = result.response.text()
+        const resposta = "Você disse: " + message;
 
         res.json({
             reply: resposta
-        })
+        });
 
-    } catch(err) {
+    } catch (err) {
+        console.log(err);
 
-        console.log(err)
-
-        res.json({
-            reply: "Erro na IA"
-        })
+        res.status(500).json({
+            error: "Erro interno do servidor"
+        });
     }
-})
+});
 
-app.get("/", (req, res) => {
-    res.send("IA online")
-})
+const PORT = process.env.PORT || 3000;
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log("Servidor rodando")
-})
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
