@@ -1,21 +1,44 @@
-const express = require('express');
-const path = require('path');
-const indexRouter = require('./routes/index');
+const express = require("express")
+const { GoogleGenerativeAI } = require("@google/generative-ai")
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express()
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json())
 
-// Use the router for handling routes
-app.use('/', indexRouter);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY)
 
-// Catch-all route for handling 404 errors
-app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  });
+app.post("/chat", async (req, res) => {
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
-});
+    try {
+
+        const pergunta = req.body.message
+
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash"
+        })
+
+        const result = await model.generateContent(pergunta)
+
+        const resposta = result.response.text()
+
+        res.json({
+            reply: resposta
+        })
+
+    } catch(err) {
+
+        console.log(err)
+
+        res.json({
+            reply: "Erro na IA"
+        })
+    }
+})
+
+app.get("/", (req, res) => {
+    res.send("IA online")
+})
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Servidor rodando")
+})
