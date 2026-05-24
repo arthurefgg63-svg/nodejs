@@ -1,25 +1,24 @@
-const express = require("express");
+ const express = require("express")
 
-const app = express();
+const app = express()
 
-app.use(express.json());
+app.use(express.json())
 
 app.get("/", (req, res) => {
-    res.send("API ONLINE");
-});
+    res.send("IA ONLINE")
+})
 
-app.post("/ai", (req, res) => {
+app.post("/chat", async (req, res) => {
 
-    const message = req.body.message || "oi";
+    const message = req.body.message || "oi"
 
     res.json({
-        reply: "IA: " + message
-    });
+        reply: "Você disse: " + message
+    })
+})
 
-});
+const PORT = process.env.PORT || 3000
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, "0.0.0.0", () => {
-    console.log("Servidor online");
-});
+app.listen(PORT, () => {
+    console.log("Servidor rodando na porta " + PORT)
+})
